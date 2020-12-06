@@ -15,3 +15,11 @@ start worker.py on startup
 - i2c activated at raspberry
 
 - pip3 install scikit-rf
+
+- dnsmasq for AP
+
+- hostapd for AP
+
+## wifi_ap
+simple accesspoint using dns-catch all as captive portal for easy data access
+
