@@ -1,25 +1,23 @@
 # gpr
 
 ## princible
-``
-               ┌──────────┐    ┌─────────┐    ┌─────────┐
-    ┌──────────┤NanoVNA-  │.s2p│ tdr.py  │.DZT│ viewer: │
-    ▼      ┌──►│(saver)   ├───►│         ├───►│ GPRPy   │
-  ────   ────  │          │    │         │    │         │
-  Ant1  Ant2   └──────────┘    └─────────┘    └─────────┘
-
-``
-
-
-
+<pre>
+<!-- language: lang-none -->  
+               ┌──────────┐    ┌─────────┐    ┌─────────┐  
+    ┌──────────┤NanoVNA-  │.s2p│ tdr.py  │.DZT│ viewer: │   
+    ▼      ┌──►│(saver)   ├───►│         ├───►│ GPRPy   │   
+  ────   ────  │          │    │         │    │         │   
+  Ant1  Ant2   └──────────┘    └─────────┘    └─────────┘   
+ 
+</pre>
 ## interfaces
 
 USB 		NanoVNA
 
-GPIO 08 	SDA (I2C)
-GPIO 09 	SCL (I2C)        
-GPIO 26		switch, external pull down
-GPIO 17		buzzer
+GPIO 08 	SDA (I2C)  
+GPIO 09 	SCL (I2C)          
+GPIO 26		switch, external pull down  
+GPIO 17		buzzer  
 
 ## usage
 start worker.py on startup
@@ -38,9 +36,9 @@ start worker.py on startup
 
 - hostapd for AP
 
-- GPRPy (optional for viewing the data)
-	https://nsgeophysics.github.io/GPRPy/
-	https://github.com/NSGeophysics/GPRPy
+- GPRPy (optional for viewing the data)  
+	https://nsgeophysics.github.io/GPRPy/  
+	https://github.com/NSGeophysics/GPRPy  
 	       	
 ## wifi_ap
 simple accesspoint using dns-catch all as captive portal for easy data access
