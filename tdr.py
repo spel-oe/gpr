@@ -190,7 +190,7 @@ class TDR():
                 val= m*10**7
                 val= int(val)
                 #fh.write(struct.pack('>H', val))
-                fh.write(val.to_bytes(2, byteorder="big"))
+                fh.write(val.to_bytes(2, byteorder="little"))
         fh.close()
 
 
