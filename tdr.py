@@ -24,6 +24,8 @@ class TDR():
         self.freq = []
         self.im = []
         self.re = []
+        self.gpr = []
+        self.td = []
 
     def listFolder(self,folder,output):
         files = glob.glob(folder + '*.s2p')
