@@ -22,15 +22,14 @@ import os
 class TDR():
     def __init__(self):
         self.freq = []
-        self.im = []
+        self.im = 0
         self.re = []
-        self.gpr = []
-        self.td = []
+        self.ts = []
 
     def listFolder(self,folder,output):
         files = glob.glob(folder + '*.s2p')
         files.sort()
-        self.gpr = [None] * 2**10
+        self.gpr = [None] * 111
         for d in files:
             self.readP2S(d)
             self.gpr = np.vstack([self.gpr, self.td])
@@ -38,28 +37,53 @@ class TDR():
         self.writeDZT(output)
     
     def readP2S(self,file):
-        ts=  rf.Network(file)
-        self.re= ts.s21.s_re[:,0,0]
-        self.im= ts.s21.s_im[:,0,0]
-        self.freq=ts.f 
+        self.ts=  rf.Network(file)
+        #self.re= ts.s21.s_re[:,0,0]
+        #self.im= ts.s21.s_im[:,0,0]
+        #self.freq=ts.f 
         self.calcTDR()
 
 
     def calcTDR(self):
-        c = 299792458
+        #c = 299792458
         # TODO: Let the user select whether to use high or low resolution TDR?
         #FFT_POINTS = 2**14
-        FFT_POINTS = 2**10
+        #FFT_POINTS = 2**10
 
-        if len(self.freq) < 2:
-            return
+        #if len(self.freq) < 2:
+        #    return
 
-        step_size = self.freq[1] - self.freq[0]
-        if step_size == 0:
-            self.tdr_result_label.setText("")
-            print("Cannot compute cable length at 0 span")
-            return
+        #step_size = self.freq[1] - self.freq[0]
+        #if step_size == 0:
+        #    self.tdr_result_label.setText("")
+        #    print("Cannot compute cable length at 0 span")
+        #    return
 
+        ##td by skrf
+        f_domain = self.ts
+
+        #beautiful lowpass 
+        #f_domain.crop(0, 24e9)
+
+        #generate dc value
+        f_domain_dc=f_domain.extrapolate_to_dc(kind='linear')
+
+
+        td=f_domain_dc.s21.impulse_response(window='hamming', n=None, pad=0, bandpass=None)
+        td_time=td[0]
+        td=td[1]
+        
+        td_time=td_time[int(len(td_time)/2):]
+        td=td[int(len(td)/2):]
+        self.im=self.im+1
+        print(self.im)
+
+        print(len(td))
+
+        self.td=np.array(td)#
+        self.time= td_time
+
+    def calc_old(self):
         s21 = []
         l = len(self.freq)
         for d in range(0,l):
@@ -189,8 +213,9 @@ class TDR():
         for c in range(1,l[0]):
             col= self.gpr[c]
             for m in col:
-                val= m*10**7
+                val= m*10**5
                 val= int(val)
+                val=val+0x8000
                 #fh.write(struct.pack('>H', val))
                 fh.write(val.to_bytes(2, byteorder="little"))
         fh.close()
