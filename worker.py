@@ -1,11 +1,15 @@
 import os
-import RPi.GPIO as GPIO
 import time
 import subprocess
 import threading
 
-import display
-import beep
+
+
+rpi= True #enable if running on rPi with oled display, beep, switch
+if rpi:
+    import RPi.GPIO as GPIO
+    import display
+    import beep
 
 PIN_run = 26 
 global run_state_old 
@@ -87,21 +91,24 @@ def vna_output(proc):
         time.sleep(0.1)
         
 
-gpio_init()
+if rpi: #see above
+    gpio_init()
+    #display
+    iface = display.display()
+    iface.number = run_id
+    iface.stop()
+    #beep
+    noise = beep.beep()
+    thread_beep = threading.Thread(target = noise.worker) 
+    thread_beep.start()  
+
 run_id = get_measurement_id()
-#display
-iface = display.display()
-iface.number = run_id
-iface.stop()
-#beep
-noise = beep.beep()
-thread_beep = threading.Thread(target = noise.worker) 
-thread_beep.start()  
 t = 0 #variable for therad
 proc = 0 #variable for sub process
 
 while True:
-    status = gpio_status()
+    if rpi:
+        status = gpio_status()
     if (status == 0 and run_error == True):
         #status = 1
         print("error___state")
