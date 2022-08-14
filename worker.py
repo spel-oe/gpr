@@ -4,13 +4,21 @@ import subprocess
 import threading
 
 
-
+http= True #enables http server
+gprpy= True #enable default DZT => PDF => png
 rpi= True #enable if running on rPi with oled display, beep, switch
-rpi= False #enable if running on rPi with oled display, beep, switch
+#rpi= False #enable if running on rPi with oled display, beep, switch
 if rpi:
     import RPi.GPIO as GPIO
     import display
     import beep
+
+if http:
+    from functools import partial
+    from http.server import HTTPServer, SimpleHTTPRequestHandler
+    from pathlib import Path
+#if gprpy:
+#    import gprpy.gprpy as gp
 
 PIN_run = 26 
 global run_state_old 
@@ -91,6 +99,11 @@ def vna_output(proc):
             return
         time.sleep(0.1)
         
+def start_http():
+    print("serving from out...")
+    handler = partial(SimpleHTTPRequestHandler, directory="./out/")
+    httpd = HTTPServer(('0.0.0.0', 8080), handler)
+    httpd.serve_forever()
 
 if rpi: #see above
     gpio_init()
@@ -106,6 +119,12 @@ if rpi: #see above
 run_id = get_measurement_id()
 t = 0 #variable for therad
 proc = 0 #variable for sub process
+
+
+if http:
+
+    thread_http = threading.Thread(target = start_http) 
+    thread_http.start()  
 
 if not rpi:
     status = 2
@@ -130,8 +149,8 @@ while True:
         #noise.start()
         print( path_worker + str(run_id), path_out)
 
-        #proc = subprocess.Popen(['python3', '/home/pi/nanovna-saver/nanovna-saver.py','-f','100000000','-t','1000000000', '-o', path_worker+ str(run_id),'-i'],
-        proc = subprocess.Popen(['python3', 'librevna.py','-f','100000000','-t','1000000000', '-o', path_worker+ str(run_id),'-i'],
+        proc = subprocess.Popen(['python3', '/home/pi/nanovna-saver/nanovna-saver.py','-f','100000000','-t','1000000000', '-o', path_worker+ str(run_id),'-i'],
+        #proc = subprocess.Popen(['python3', 'librevna.py','-f','100000000','-t','1000000000', '-o', path_worker+ str(run_id),'-i'],
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT)
 
@@ -139,7 +158,7 @@ while True:
         t.start()
 
 
-    elif(status == 1): #finished measurement
+    elif(status == 1 and started == True): #finished measurement
         #stop
         started = False
         print('stop_state\n')
@@ -153,7 +172,10 @@ while True:
             print("python3 tdr.py -i "+ str(path_worker) + str(run_id) + " -o " + str(path_out) + str(run_id))
             os.system("python3 tdr.py -i "+ str(path_worker) + str(run_id) + " -o " + str(path_out) + str(run_id))
             a = 0
-
+        if gprpy:
+            
+            os.system("python3 gprpy_img.py -i "+ str(path_out)+str(run_id)+".DZT" + str(path_out)+"images/"+str(run_id)+".png")
+            #process_gprpy(str(path_out)+str(run_id)+".DZT",str(path_out)+"images/"+str(run_id)+".png")
         iface.stop()
     if rpi:
         iface.work()
