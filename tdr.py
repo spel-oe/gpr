@@ -29,9 +29,12 @@ class TDR():
     def listFolder(self,folder,output):
         files = glob.glob(folder + '*.s2p')
         files.sort()
-        self.gpr = [None] * 111
+        #self.gpr = [None] * 111
+        self.gpr = 1
         for d in files:
             self.readP2S(d)
+            if isinstance(self.gpr, int):
+                self.gpr = [None] * len(self.td)
             self.gpr = np.vstack([self.gpr, self.td])
         print("done")
         self.writeDZT(output)
@@ -69,7 +72,7 @@ class TDR():
         f_domain_dc=f_domain.extrapolate_to_dc(kind='linear')
 
 
-        td=f_domain_dc.s21.impulse_response(window='hamming', n=None, pad=0, bandpass=None)
+        td=f_domain_dc.s21.impulse_response(window='hamming', n=None, pad=1000, bandpass=None)
         td_time=td[0]
         td=td[1]
         
@@ -132,7 +135,7 @@ class TDR():
         fh.write(struct.pack('<H', rh_data))
         rh_nsamp = len(self.gpr[0]) #samples  per scan
         fh.write(struct.pack('<H', rh_nsamp))
-        rh_bits = 16 # bits per data word
+        rh_bits = 32 # bits per data word #16=unsigned 2 byte #32=signed int
         fh.write(struct.pack('<H', rh_bits))
         rh_zero = 0x8000 #constant
         fh.write(struct.pack('<H', rh_zero))
@@ -213,11 +216,12 @@ class TDR():
         for c in range(1,l[0]):
             col= self.gpr[c]
             for m in col:
-                val= m*10**5
-                val= int(val)
-                val=val+0x8000
+                val= m*10**9
+                val= int(val) # 
+                #val=val+0x8000 #see above for unsigned bias 
                 #fh.write(struct.pack('>H', val))
-                fh.write(val.to_bytes(2, byteorder="little"))
+                #fh.write(val.to_bytes(2, byteorder="little"))
+                fh.write(val.to_bytes(4, byteorder="little", signed=True))
         fh.close()
 
 

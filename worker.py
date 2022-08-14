@@ -1,11 +1,16 @@
 import os
-import RPi.GPIO as GPIO
 import time
 import subprocess
 import threading
 
-import display
-import beep
+
+
+rpi= True #enable if running on rPi with oled display, beep, switch
+rpi= False #enable if running on rPi with oled display, beep, switch
+if rpi:
+    import RPi.GPIO as GPIO
+    import display
+    import beep
 
 PIN_run = 26 
 global run_state_old 
@@ -14,9 +19,9 @@ run_error = False
 run_state_old = False
 run_state = False
 run_id = 0;
-path_out = "/home/pi/gpr/out/"
+path_out = "./out/"
 path_vna = "python3 /home/pi/nanovna-saver/nanovna-saver.py" #check if cd needed
-path_worker = "/home/pi/gpr/worker/"
+path_worker = "./worker/"
 
 #
 # => start dispaly worker
@@ -87,37 +92,46 @@ def vna_output(proc):
         time.sleep(0.1)
         
 
-gpio_init()
+if rpi: #see above
+    gpio_init()
+    #display
+    iface = display.display()
+    iface.number = run_id
+    iface.stop()
+    #beep
+    noise = beep.beep()
+    thread_beep = threading.Thread(target = noise.worker) 
+    thread_beep.start()  
+
 run_id = get_measurement_id()
-#display
-iface = display.display()
-iface.number = run_id
-iface.stop()
-#beep
-noise = beep.beep()
-thread_beep = threading.Thread(target = noise.worker) 
-thread_beep.start()  
 t = 0 #variable for therad
 proc = 0 #variable for sub process
 
+if not rpi:
+    status = 2
+started = False
 while True:
-    status = gpio_status()
+    if rpi:
+        status = gpio_status()
     if (status == 0 and run_error == True):
         #status = 1
         print("error___state")
         #noise.error()
-    if (status == 2):
+    if (status == 2 and started == False): #start measurement
         #start 
+        started = True
         run_error = False
         print('start\n')
         run_id+=1
-        iface.number = run_id
-        iface.start()
+        if rpi:
+            iface.number = run_id
+            iface.start()
         # beep 
         #noise.start()
         print( path_worker + str(run_id), path_out)
 
-        proc = subprocess.Popen(['python3', '/home/pi/nanovna-saver/nanovna-saver.py','-f','100000000','-t','1000000000', '-o', path_worker+ str(run_id),'-i'],
+        #proc = subprocess.Popen(['python3', '/home/pi/nanovna-saver/nanovna-saver.py','-f','100000000','-t','1000000000', '-o', path_worker+ str(run_id),'-i'],
+        proc = subprocess.Popen(['python3', 'librevna.py','-f','100000000','-t','1000000000', '-o', path_worker+ str(run_id),'-i'],
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT)
 
@@ -125,8 +139,9 @@ while True:
         t.start()
 
 
-    elif(status == 1):
+    elif(status == 1): #finished measurement
         #stop
+        started = False
         print('stop_state\n')
         #kill nanovna
         # stop beep
@@ -140,7 +155,8 @@ while True:
             a = 0
 
         iface.stop()
-    iface.work()
+    if rpi:
+        iface.work()
     #if ( run_state_old == True):
         #noise.beep()
     time.sleep(0.1)
