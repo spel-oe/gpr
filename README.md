@@ -93,6 +93,7 @@ see documentation/antenna (KiCad 6)
 - antennas
   - sma cables, short as possible
 - shielding boxes, including absorptive material
+- vna, e.g. nanovna v2
 - pc, e.g. debian based, RaspberryPi 3, 4 or equivalent, pinout see above
   - oled display (i2c) 0,96'' 128x64 pixel
   - beep, buzzer just supply voltage for beep
