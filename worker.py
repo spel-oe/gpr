@@ -3,11 +3,13 @@ import time
 import subprocess
 import threading
 
-
+#####Config START #####
 http= True #enables http server
-gprpy= True #enable default DZT => PDF => png
+http_port= 8080 #port for http server
+gprpy= True #enable preview image DZT => PDF => png
 rpi= True #enable if running on rPi with oled display, beep, switch
 #rpi= False #enable if running on rPi with oled display, beep, switch
+#####Config END #####
 if rpi:
     import RPi.GPIO as GPIO
     import display
@@ -100,9 +102,9 @@ def vna_output(proc):
         time.sleep(0.1)
         
 def start_http():
-    print("serving from out...")
+    print("serving http server from out/ ...")
     handler = partial(SimpleHTTPRequestHandler, directory="./out/")
-    httpd = HTTPServer(('0.0.0.0', 8080), handler)
+    httpd = HTTPServer(('0.0.0.0', http_port), handler)
     httpd.serve_forever()
 
 if rpi: #see above
