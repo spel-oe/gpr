@@ -46,7 +46,7 @@ Viewing the data
 - GPRPy (optional )  
 	https://nsgeophysics.github.io/GPRPy/  
 	https://github.com/NSGeophysics/GPRPy  
-- if gprpy is installed and enabled in worker, a preview image is proviced in out/images
+- if gprpy is installed and enabled in worker, a preview image is provided in out/images
 
 	       	
 ## wifi_ap
