@@ -34,7 +34,7 @@ GPIO 17		buzzer  => indicating active measurement
 - pip3 install: 
   - numpy 
   - scikit-rf  
-- imagemagick for preview image 
+- imagemagick for preview image  
      for pdf conversion support: `sudo sed -i '/disable ghostscript format types/,+6d' /etc/ImageMagick-6/policy.xml`
 
 For file transfer:  
