@@ -176,7 +176,7 @@ while True:
             a = 0
         if gprpy:
             
-            os.system("python3 gprpy_img.py -i "+ str(path_out)+str(run_id)+".DZT" + str(path_out)+"images/"+str(run_id)+".png")
+            os.system("python3 gprpy_img.py -i "+ str(path_out)+str(run_id)+".DZT -o " + str(path_out)+"images/"+str(run_id)+".png")
             #process_gprpy(str(path_out)+str(run_id)+".DZT",str(path_out)+"images/"+str(run_id)+".png")
         iface.stop()
     if rpi:
